@@ -1,0 +1,9 @@
+Machine learning is a field of artificial intelligence.
+
+Data science extracts insights from data.
+
+Deep learning uses neural networks.
+
+Natural language processing allows machines to understand human language.
+
+Computer vision enables machines to analyze images.
