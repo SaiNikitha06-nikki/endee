@@ -1,139 +1,646 @@
-<p align="center">
-  <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo-light.svg">
-      <img height="100" alt="Endee" src="docs/assets/logo-dark.svg">
-  </picture>
-</p>
+# Endee AI Search & RAG System
 
-<p align="center">
-    <b>High-performance open-source vector database for AI search, RAG, semantic search, and hybrid retrieval.</b>
-</p>
+A production-ready **Retrieval Augmented Generation (RAG)** application powered by **Endee** - a high-performance open-source vector database.
 
-<p align="center">
-    <a href="./docs/getting-started.md"><img src="https://img.shields.io/badge/Quick_Start-Local_Setup-success?style=flat-square" alt="Quick Start"></a>
-    <a href="https://docs.endee.io/quick-start"><img src="https://img.shields.io/badge/Docs-Quick_Start-success?style=flat-square" alt="Docs"></a>
-    <a href="https://github.com/endee-io/endee/blob/master/LICENSE"><img src="https://img.shields.io/github/license/endee-io/endee?style=flat-square" alt="License"></a>
-    <a href="https://discord.gg/5HFGqDZQE3"><img src="https://img.shields.io/badge/Discord-Join_Chat-5865F2?logo=discord&style=flat-square" alt="Discord"></a>
-    <a href="https://endee.io/"><img src="https://img.shields.io/badge/Website-Endee-111111?style=flat-square" alt="Website"></a>
-    <!-- <a href="https://endee.io/benchmarks"><img src="https://img.shields.io/badge/Benchmarks-Coming_Soon-1F8B4C?style=flat-square" alt="Benchmarks"></a> -->
-    <!-- <a href="https://endee.io/cloud"><img src="https://img.shields.io/badge/Cloud-Coming_Soon-2496ED?style=flat-square" alt="Cloud"></a> -->
-</p>
+## 🎯 Overview
 
-<p align="center">
-<strong><a href="./docs/getting-started.md">Quick Start</a> • <a href="#why-endee">Why Endee</a> • <a href="#use-cases">Use Cases</a> • <a href="#features">Features</a> • <a href="#api-and-clients">API and Clients</a> • <a href="#docs-and-links">Docs</a> • <a href="#community-and-contact">Contact</a></strong>
-</p>
+This project demonstrates a complete AI/ML system that combines semantic search with language models for intelligent question answering. It showcases how to build modern retrieval-augmented applications using Endee's efficient vector database.
 
-# Endee: Open-Source Vector Database for AI Search
+### Key Features
 
-**Endee** is a high-performance open-source vector database built for AI search and retrieval workloads. It is designed for teams building **RAG pipelines**, **semantic search**, **hybrid search**, recommendation systems, and filtered vector retrieval APIs that need production-oriented performance and control.
+- **Semantic Search**: Find documents using vector similarity rather than keyword matching
+- **RAG (Retrieval Augmented Generation)**: Answer questions by retrieving relevant context and feeding it to an LLM
+- **Metadata Filtering**: Filter results based on document metadata
+- **Batch Indexing**: Efficiently index large document collections
+- **Modern Web UI**: Interactive dashboard for search and Q&A
+- **REST API**: Full API for integration with other applications
+- **Fine-tuned Embeddings**: Uses Sentence Transformers for high-quality embeddings
 
-Endee combines vector search with filtering, sparse retrieval support, backup workflows, and deployment flexibility across local builds and Docker-based environments. The project is implemented in C++ and optimized for modern CPU targets, including AVX2, AVX512, NEON, and SVE2.
+## 🏗️ System Architecture
 
-If you want the fastest path to evaluate Endee locally, start with the [Getting Started guide](./docs/getting-started.md) or the hosted docs at [docs.endee.io](https://docs.endee.io/quick-start).
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Web Interface                          │
+│  (HTML/CSS/JavaScript - Interactive Dashboard)             │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ HTTP/JSON
+┌──────────────────────▼──────────────────────────────────────┐
+│                   Flask API Server                          │
+│  ┌────────────────┬──────────────┬──────────────┐          │
+│  │  /api/search   │  /api/ask    │  /api/status │          │
+│  │  (Semantic)    │  (RAG Q&A)   │  (Health)    │          │
+│  └────────────┬───┴──────┬───────┴───────┬──────┘          │
+└───────────────┼──────────┼────────────────┼─────────────────┘
+                │          │                │
+        ┌───────▼──────┐  │  ┌─────────────▼─────┐
+        │   Search     │  │  │  RAG Pipeline     │
+        │   Module     │  │  │  (LLM Integration)│
+        └───────┬──────┘  │  └────────────┬──────┘
+                │         │               │
+        ┌───────▼─────────▼───────────────▼──────────┐
+        │   Embedding Generation                     │
+        │   (Sentence Transformers)                  │
+        └───────┬────────────────────────────────────┘
+                │
+        ┌───────▼───────────────────────────────────┐
+        │  Endee Vector Database                    │
+        │  (High-Performance Vector Search)         │
+        │  - Dense Vector Storage                   │
+        │  - Similarity Search                      │
+        │  - Metadata Filtering                     │
+        └───────────────────────────────────────────┘
+```
 
-## Why Endee
+## 🚀 Quick Start
 
-- Built as a dedicated vector database for AI applications, search systems, and retrieval-heavy workloads.
-- Supports dense vector retrieval plus sparse search capabilities for hybrid search use cases.
-- Includes payload filtering for metadata-aware retrieval and application-specific query logic.
-- Ships with operational features already documented in this repo, including backup flows and runtime observability.
-- Offers flexible deployment paths: local scripts, manual builds, Docker images, and prebuilt registry images.
+### Prerequisites
 
-## Getting Started
+- Python 3.8+
+- Endee vector database running on `localhost:8080` (or configured endpoint)
+- pip (Python package manager)
 
-The full installation, build, Docker, runtime, and authentication instructions are in [docs/getting-started.md](./docs/getting-started.md).
+### 1. Install Endee
 
-Fastest local path:
+Follow the [official Endee getting started guide](https://docs.endee.io/quick-start):
 
 ```bash
+# Clone the Endee repository
+git clone https://github.com/endee-io/endee.git
+cd endee
+
+# Install and build
 chmod +x ./install.sh ./run.sh
 ./install.sh --release --avx2
+
+# Run Endee server (in a separate terminal)
 ./run.sh
 ```
 
-The server listens on port `8080`. For detailed setup paths, supported operating systems, CPU optimization flags, Docker usage, and authentication examples, use:
+Endee will start on `http://localhost:8080`.
 
-- [Getting Started](./docs/getting-started.md)
-- [Hosted Quick Start Docs](https://docs.endee.io/quick-start)
+### 2. Setup AI Search Project
 
-## Use Cases
+```bash
+# Navigate to the ai-search-project directory
+cd ai-search-project
 
-### RAG and AI Retrieval
+# Create Python virtual environment
+python -m venv venv
 
-Use Endee as the retrieval layer for question answering, chat assistants, copilots, and other RAG applications that need fast vector search with metadata-aware filtering.
+# Activate virtual environment
+# On Linux/Mac:
+source venv/bin/activate
+# On Windows:
+venv\Scripts\activate
 
-### Agentic AI and AI Agent Memory
+# Install Python dependencies
+pip install -r requirements.txt
 
-Use Endee as the long-term memory and context retrieval layer for AI agents built with frameworks like LangChain, CrewAI, AutoGen, and LlamaIndex. Store and retrieve past observations, tool outputs, conversation history, and domain knowledge mid-execution with low-latency filtered vector search, so your autonomous agents get the right context without stalling their reasoning loop.
+# Download embedding model (first run only, ~80MB)
+python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+```
 
-### Semantic Search
+### 3. Configure the Application
 
-Build semantic search experiences for documents, products, support content, and knowledge bases using vector similarity search instead of exact keyword-only matching.
+```bash
+# Copy and edit the example configuration
+cp .env.example .env
 
-### Hybrid Search
+# Edit .env with your settings (optional)
+nano .env
+```
 
-Combine dense retrieval, sparse vectors, and filtering to improve relevance for search workflows where both semantic understanding and term-level precision matter.
+Key configuration variables:
+- `ENDEE_HOST`: Vector database host (default: localhost)
+- `ENDEE_PORT`: Vector database port (default: 8080)
+- `LLM_API_KEY`: OpenAI API key (optional, for RAG features)
+- `LLM_MODEL`: Model to use (default: gpt-3.5-turbo)
 
-### Recommendations and Matching
+### 4. Initialize with Sample Data
 
-Support recommendation, similarity matching, and nearest-neighbor retrieval workflows across text, embeddings, and other high-dimensional representations.
+```bash
+# Load and index the sample dataset
+python init_data.py
+```
 
-## Features
+This will:
+- Connect to Endee
+- Create the documents index
+- Generate embeddings for sample documents
+- Index them in Endee
 
-- **Vector search** for AI retrieval and semantic similarity workloads.
-- **Hybrid retrieval support** with sparse vector capabilities documented in [docs/sparse.md](./docs/sparse.md).
-- **Payload filtering** for structured retrieval logic documented in [docs/filter.md](./docs/filter.md).
-- **Backup APIs and flows** documented in [docs/backup-system.md](./docs/backup-system.md).
-- **Operational logging and instrumentation** documented in [docs/logs.md](./docs/logs.md) and [docs/mdbx-instrumentation.md](./docs/mdbx-instrumentation.md).
-- **CPU-targeted builds** for AVX2, AVX512, NEON, and SVE2 deployments.
-- **Docker deployment options** for local and server environments.
+### 5. Start the Application
 
-## API and Clients
+```bash
+# Start Flask development server
+python app.py
+```
 
-Endee exposes an HTTP API for managing indexes and serving retrieval workloads. The current repo documentation and examples focus on running the server directly and calling its API endpoints.
+The application will be available at `http://localhost:5000`
 
-Current developer entry points:
+## 📚 Usage
 
-- [Getting Started](./docs/getting-started.md) for local build and run flows
-- [Hosted Docs](https://docs.endee.io/quick-start) for product documentation
-- [Release Notes 1.0.0](https://github.com/endee-io/endee/releases/tag/1.0.0) for recent platform changes
+### Web Interface
 
-## Docs and Links
+Navigate to `http://localhost:5000` and use the interactive dashboard:
 
-- [Getting Started](./docs/getting-started.md)
-- [Hosted Documentation](https://docs.endee.io/quick-start)
-- [Release Notes](https://github.com/endee-io/endee/releases/tag/1.0.0)
-- [Sparse Search](./docs/sparse.md)
-- [Filtering](./docs/filter.md)
-- [Backups](./docs/backup-system.md)
+**1. Semantic Search Tab**
+- Enter a search query
+- Adjust the number of results (top_k)
+- View documents ranked by relevance score
+- Expand full text with "View Full Text"
 
-## Community and Contact
+**2. Question Answering Tab**
+- Ask a question about your documents
+- System retrieves relevant context
+- LLM generates an answer (if configured)
+- View source documents used for the answer
 
-- Join the community on [Discord](https://discord.gg/5HFGqDZQE3)
-- Visit the website at [endee.io](https://endee.io/)
-- For trademark or branding permissions, contact [enterprise@endee.io](mailto:enterprise@endee.io)
+**3. System Info Tab**
+- Check database connection status
+- View document statistics
+- Learn about the system architecture
 
-## Contributing
+### REST API
 
-We welcome contributions from the community to help make vector search faster and more accessible for everyone.
+#### 1. Semantic Search
 
-- Submit pull requests for fixes, features, and improvements
-- Report bugs or performance issues through GitHub issues
-- Propose enhancements for search quality, performance, and deployment workflows
+```bash
+curl -X POST http://localhost:5000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "machine learning",
+    "top_k": 5
+  }'
+```
 
-## License
+**Response:**
+```json
+{
+  "query": "machine learning",
+  "count": 2,
+  "results": [
+    {
+      "id": 0,
+      "score": 0.89,
+      "text": "Machine learning is a field of artificial intelligence",
+      "metadata": {}
+    }
+  ],
+  "timestamp": "2024-03-17T10:30:00.000000"
+}
+```
 
-Endee is open source software licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) file for full terms.
+#### 2. Question Answering (RAG)
 
-## Trademark and Branding
+```bash
+curl -X POST http://localhost:5000/api/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What is machine learning?",
+    "num_contexts": 3
+  }'
+```
 
-“Endee” and the Endee logo are trademarks of Endee Labs.
+**Response:**
+```json
+{
+  "question": "What is machine learning?",
+  "answer": "Based on the retrieved documents: Machine learning is a field of artificial intelligence...",
+  "sources": [
+    "Machine learning is a field of artificial intelligence...",
+    "Deep learning uses neural networks..."
+  ],
+  "timestamp": "2024-03-17T10:30:00.000000"
+}
+```
 
-The Apache License 2.0 does not grant permission to use the Endee name, logos, or branding in a way that suggests endorsement or affiliation.
+#### 3. System Status
 
-If you offer a hosted or managed service based on this software, you must use your own branding and avoid implying it is an official Endee service.
+```bash
+curl http://localhost:5000/api/health
+```
 
-## Third-Party Software
+#### 4. Index Statistics
 
-This project includes or depends on third-party software components licensed under their respective open-source licenses. Use of those components is governed by their own license terms.
+```bash
+curl http://localhost:5000/api/documents
+```
+
+#### 5. Batch Index Documents
+
+```bash
+curl -X POST http://localhost:5000/api/documents/batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documents": [
+      {
+        "id": 100,
+        "text": "Your document text here",
+        "metadata": {
+          "source": "docs",
+          "category": "tutorial"
+        }
+      }
+    ]
+  }'
+```
+
+## 📁 Project Structure
+
+```
+ai-search-project/
+├── app.py                 # Flask application entry point
+├── config.py             # Configuration management
+├── embedding.py          # Embedding generation module
+├── vector_store.py       # Endee integration & vector operations
+├── search.py             # Semantic search functionality
+├── rag.py               # RAG pipeline with LLM integration
+├── init_data.py         # Data initialization script
+├── requirements.txt     # Python dependencies
+├── .env.example         # Example environment variables
+├── dataset.txt          # Sample documents
+├── templates/
+│   └── index.html       # Web interface
+└── static/
+    ├── style.css        # Styling
+    └── script.js        # Frontend JavaScript
+```
+
+## 🔧 Configuration
+
+### Environment Variables (.env)
+
+```ini
+# Endee Configuration
+ENDEE_HOST=localhost
+ENDEE_PORT=8080
+ENDEE_INDEX_NAME=documents
+
+# Embedding Model
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+EMBEDDING_DIMENSION=384
+
+# LLM Configuration (Optional)
+LLM_API_KEY=your_openai_key
+LLM_API_URL=https://api.openai.com/v1
+LLM_MODEL=gpt-3.5-turbo
+
+# Application
+DEBUG=False
+MAX_RESULTS=5
+SIMILARITY_THRESHOLD=0.3
+CORS_ORIGINS=*
+```
+
+### Available Embedding Models
+
+The system uses Sentence Transformers. Some popular models:
+
+| Model | Dimension | Speed | Quality |
+|-------|-----------|-------|---------|
+| all-MiniLM-L6-v2 | 384 | Fast | Good |
+| all-mpnet-base-v2 | 768 | Medium | Excellent |
+| multi-qa-mpnet-base-dot-v1 | 768 | Medium | Great for Q&A |
+| paraphrase-MiniLM-L6-v2 | 384 | Fast | Good |
+
+Change in `.env`:
+```ini
+EMBEDDING_MODEL=all-mpnet-base-v2
+EMBEDDING_DIMENSION=768
+```
+
+## 📖 Use Cases
+
+### 1. Documentation Search
+Index your product documentation or API docs for instant semantic search:
+```python
+# Load docs from markdown files
+docs = load_documentation()
+index_documents(docs, metadata={"type": "documentation"})
+```
+
+### 2. Customer Support Knowledge Base
+Build an intelligent help system:
+```python
+# Load support articles
+articles = load_support_articles()
+index_documents(articles, metadata={"category": "support"})
+
+# Users ask questions, system finds relevant articles
+response = rag_pipeline.query("How do I reset my password?")
+```
+
+### 3. Research Paper Search
+Index academic papers for intelligent discovery:
+```python
+# Load papers with metadata
+papers = load_papers_with_metadata()
+index_documents(papers, metadata={"journal": "Nature", "year": 2023})
+
+# Find relevant papers by semantic similarity
+results = semantic_search("attention mechanisms in deep learning")
+```
+
+### 4. E-commerce Product Recommendations
+Recommend products based on semantic similarity:
+```python
+# Index product descriptions
+products = load_product_catalog()
+index_documents(products, metadata={"category": "electronics", "price": 299})
+
+# Find similar products
+similar = semantic_search(user_query, filter_by_category="electronics")
+```
+
+## 🔌 Integrating with External LLMs
+
+### OpenAI (GPT-3.5/GPT-4)
+
+```python
+# Set environment variables
+export LLM_API_KEY="sk-..."
+export LLM_MODEL="gpt-4"
+
+# The RAG pipeline automatically uses it
+response = rag_pipeline.query("Your question here")
+```
+
+### Local LLMs (Ollama)
+
+```python
+# In .env:
+LLM_API_URL=http://localhost:11434/v1
+LLM_MODEL=llama2
+LLM_API_KEY=not-needed
+```
+
+### Custom LLM Implementation
+
+```python
+# Extend RAGPipeline in rag.py
+class CustomRAGPipeline(RAGPipeline):
+    def _generate_answer(self, question, context):
+        # Your custom LLM integration
+        return your_llm_call(question, context)
+```
+
+## 🧪 Development
+
+### Running Tests
+
+```bash
+# Coming soon - add test suite
+pytest tests/
+```
+
+### Debugging
+
+Enable debug mode in `.env`:
+```ini
+DEBUG=True
+```
+
+Enable verbose logging:
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+### Performance Tips
+
+1. **Batch Indexing**: Index documents in batches for better performance
+2. **Embedding Dimension**: Smaller dimensions (384) = faster search, larger (768) = better quality
+3. **Filter Early**: Use metadata filters to reduce search space
+4. **Cache Embeddings**: Pre-compute embeddings if documents don't change frequently
+
+## 📊 Example Workflows
+
+### Workflow 1: Index and Search Documents
+
+```python
+from init_data import load_documents_from_file, index_documents
+from search import semantic_search
+
+# 1. Load documents
+docs = load_documents_from_file("my_documents.txt")
+
+# 2. Index them
+index_documents(docs)
+
+# 3. Search
+results = semantic_search("find documents about AI")
+
+# 4. Use results
+for result in results:
+    print(f"Score: {result['score']}")
+    print(f"Text: {result['text']}")
+```
+
+### Workflow 2: Question Answering Pipeline
+
+```python
+from rag import RAGPipeline
+
+# Initialize RAG
+rag = RAGPipeline()
+
+# Ask a question
+response = rag.query("What are the benefits of machine learning?")
+
+print("Answer:", response['answer'])
+print("Sources:", response['sources'])
+```
+
+### Workflow 3: Batch Indexing with Metadata
+
+```python
+import json
+from embedding import generate_embeddings
+from vector_store import db
+
+# Load documents with metadata
+with open('documents.json') as f:
+    docs = json.load(f)
+
+# Prepare batch
+batch = []
+for i, doc in enumerate(docs):
+    batch.append({
+        "id": i,
+        "vector": None,  # Will be generated
+        "text": doc['text'],
+        "metadata": {
+            "source": doc['source'],
+            "date": doc['date'],
+            "category": doc['category']
+        }
+    })
+
+# Generate embeddings
+texts = [d['text'] for d in batch]
+embeddings = generate_embeddings(texts)
+
+# Set embeddings
+for batch_item, embedding in zip(batch, embeddings):
+    batch_item['vector'] = embedding
+
+# Index
+db.insert_batch(batch)
+```
+
+## 🚀 Deployment
+
+### Docker Deployment
+
+Create a `Dockerfile`:
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
+CMD ["python", "app.py"]
+```
+
+Build and run:
+```bash
+docker build -t endee-search .
+docker run -p 5000:5000 -e ENDEE_HOST=host.docker.internal endee-search
+```
+
+### Docker Compose
+
+Create `docker-compose.yml` in project root:
+
+```yaml
+version: '3.8'
+
+services:
+  endee:
+    image: endeehq/endee:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - endee_data:/data
+
+  app:
+    build: ./ai-search-project
+    ports:
+      - "5000:5000"
+    environment:
+      ENDEE_HOST: endee
+      ENDEE_PORT: 8080
+    depends_on:
+      - endee
+    volumes:
+      - ./ai-search-project:/app
+
+volumes:
+  endee_data:
+```
+
+Run with:
+```bash
+docker-compose up
+```
+
+### Production Deployment
+
+For production, consider:
+1. Use a production WSGI server (Gunicorn, uWSGI)
+2. Add reverse proxy (Nginx)
+3. Enable HTTPS/SSL
+4. Setup proper logging and monitoring
+5. Use environment variables for secrets
+6. Enable database backups
+
+Example Gunicorn command:
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see LICENSE file for details.
+
+## 🔗 Resources
+
+- **Endee Documentation**: https://docs.endee.io
+- **Endee GitHub**: https://github.com/endee-io/endee
+- **Sentence Transformers**: https://www.sbert.net
+- **OpenAI API**: https://platform.openai.com/docs
+
+## 🆘 Troubleshooting
+
+### Connection Error to Endee
+
+```
+Error: Could not connect to Endee at localhost:8080
+```
+
+**Solution:**
+1. Make sure Endee is running: `./run.sh` in the endee directory
+2. Check the configured host and port in `.env`
+3. Verify firewall allows connections on port 8080
+
+### Embedding Model Download Fails
+
+```
+Error downloading model from huggingface
+```
+
+**Solution:**
+1. Check internet connection
+2. Try again - HuggingFace servers may be temporarily unavailable
+3. Cache the model manually: `python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"`
+
+### LLM API Errors
+
+```
+401 Unauthorized from OpenAI API
+```
+
+**Solution:**
+1. Verify `LLM_API_KEY` is set correctly in `.env`
+2. Check account has quota/credits
+3. Try disabling LLM (remove `LLM_API_KEY`) for fallback mode
+
+### Out of Memory Errors
+
+**Solution:**
+1. Reduce batch size in `init_data.py`
+2. Use smaller embedding model (384 dimension instead of 768)
+3. Index documents in smaller batches
+4. Increase available system memory
+
+## 📧 Support
+
+For questions and support:
+- GitHub Issues: [Create an issue](https://github.com/yourusername/endee-search/issues)
+- Endee Discord: https://discord.gg/5HFGqDZQE3
+
+## ⭐ Show Your Support
+
+If you find this project helpful, please star it on GitHub!
+
+---
+
+**Made with ❤️ using Endee Vector Database**
