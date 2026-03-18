@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<title>AI Semantic Search Chat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = { darkMode: 'class' }
+</script>
+<style>
+    .spinner {
+        border: 4px solid rgba(0,0,0,0.1);
+        border-left-color: #3b82f6;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .typewriter-text { white-space: pre-wrap; font-family: 'Courier New', monospace; }
+</style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col items-center py-10 transition-colors duration-500">
+
+<header class="text-center mb-6">
+    <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-1">AI Semantic Search Chat</h1>
+    <p class="text-gray-600 dark:text-gray-300">Ask questions and get answers like a real AI chat!</p>
+</header>
+
+<button id="darkToggle" 
+        class="mb-4 px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition">
+    Toggle Dark Mode
+</button>
+
+<!-- Chat container -->
+<div id="chatContainer" class="w-full max-w-3xl bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 space-y-4 transition-colors duration-500 overflow-y-auto" style="max-height:70vh;">
+    <!-- Previous chat will populate here -->
+</div>
+
+<!-- Input form -->
+<form id="searchForm" class="w-full max-w-3xl flex gap-2 mt-4 relative">
+    <input type="text" id="queryInput" placeholder="Type your question..." 
+           class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100">
+    <button type="submit" 
+            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg transition">
+        Send
+    </button>
+    <div id="spinner" class="spinner absolute right-12 top-1/2 transform -translate-y-1/2 hidden"></div>
+</form>
+
+<script>
+    const chatContainer = document.getElementById('chatContainer');
+    const form = document.getElementById('searchForm');
+    const queryInput = document.getElementById('queryInput');
+    const spinner = document.getElementById('spinner');
+
+    // Dark mode toggle
+    document.getElementById('darkToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+    });
+
+    function createUserBubble(text) {
+        const div = document.createElement('div');
+        div.className = 'self-end bg-blue-500 text-white p-3 rounded-xl max-w-xl break-words';
+        div.textContent = text;
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function createResultBubble(results) {
+        const div = document.createElement('div');
+        div.className = 'self-start bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 p-3 rounded-xl max-w-xl break-words';
+        const ul = document.createElement('ul');
+        ul.className = 'list-disc list-inside mt-1';
+        results.forEach(r => {
+            const li = document.createElement('li');
+            let color = r.score > 0.8 ? '#16a34a' : r.score > 0.5 ? '#f59e0b' : '#ef4444';
+            li.innerHTML = `${r.text} <span style="color:${color}">(Score: ${r.score ? r.score.toFixed(2) : '-'})</span>`;
+            ul.appendChild(li);
+        });
+        div.innerHTML = "<strong>Semantic Search Results:</strong>";
+        div.appendChild(ul);
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function createRAGBubble(answer) {
+        const div = document.createElement('div');
+        div.className = 'self-start bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 p-3 rounded-xl max-w-xl break-words';
+        const p = document.createElement('p');
+        p.className = 'typewriter-text';
+        div.appendChild(p);
+        chatContainer.appendChild(div);
+
+        let i = 0;
+        function typeWriter() {
+            if (i < answer.length) {
+                p.textContent += answer.charAt(i);
+                i++;
+                setTimeout(typeWriter, 30);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+        typeWriter();
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = queryInput.value.trim();
+        if (!query) return;
+        spinner.classList.remove('hidden');
+        createUserBubble(query);
+        queryInput.value = '';
+
+        try {
+            const res = await fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await res.json();
+            createResultBubble(data.results);
+            createRAGBubble(data.answer);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            spinner.classList.add('hidden');
+        }
+    });
+</script>
+
+</body>
+</html>
