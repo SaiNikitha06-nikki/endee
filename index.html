@@ -1,0 +1,174 @@
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Search Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        h1 { color: #38bdf8; }
+
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            background: #38bdf8;
+            cursor: pointer;
+        }
+
+        .container {
+            width: 70%;
+            margin: auto;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .green { color: #22c55e; }
+
+        .history {
+            background: #020617;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🚀 AI Semantic Search Dashboard</h1>
+
+<!-- PROJECT DESCRIPTION -->
+<div style="background:#020617; padding:15px; margin:20px; border-radius:10px;">
+    <h2>📌 Project Overview</h2>
+    <ul style="text-align:left;">
+        <li>🔍 Smart Search</li>
+        <li>📊 Graph Visualization</li>
+        <li>📁 File Upload Search</li>
+        <li>🤖 AI Response</li>
+        <li>🕘 Search History</li>
+        <li>🎨 Dashboard UI</li>
+    </ul>
+</div>
+
+<div class="container">
+
+    <!-- SEARCH -->
+    <input type="text" id="query" placeholder="Search...">
+    <button onclick="search()">Search</button>
+
+    <!-- FILE UPLOAD -->
+    <br><br>
+    <input type="file" id="file">
+    <button onclick="uploadFile()">Upload File</button>
+
+    <!-- RESULTS -->
+    <div id="results"></div>
+
+    <!-- AI RESPONSE -->
+    <h3>🤖 AI Answer</h3>
+    <div id="ai" class="card"></div>
+
+    <!-- GRAPH -->
+    <h3>📊 Accuracy Graph</h3>
+    <canvas id="chart"></canvas>
+
+    <!-- HISTORY -->
+    <div class="history">
+        <h3>🔍 Search History</h3>
+        <ul id="history"></ul>
+    </div>
+
+</div>
+
+<script>
+let chart;
+
+function search() {
+    let query = document.getElementById("query").value;
+
+    fetch("/search", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({query: query})
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        let output = "";
+        let labels = [];
+        let scores = [];
+
+        data.results.forEach(r => {
+            output += `<div class="card">
+                <p>${r.text}</p>
+                <p class="green">Accuracy: ${r.score}%</p>
+            </div>`;
+
+            labels.push(r.text.substring(0, 10));
+            scores.push(r.score);
+        });
+
+        document.getElementById("results").innerHTML = output;
+
+        document.getElementById("ai").innerText = data.context;
+
+        if (chart) chart.destroy();
+
+        let ctx = document.getElementById("chart").getContext("2d");
+        chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Accuracy %",
+                    data: scores
+                }]
+            }
+        });
+
+        let historyHTML = "";
+        data.history.forEach(h => {
+            historyHTML += `<li>${h}</li>`;
+        });
+
+        document.getElementById("history").innerHTML = historyHTML;
+    });
+}
+
+function uploadFile() {
+    let file = document.getElementById("file").files[0];
+    let formData = new FormData();
+    formData.append("file", file);
+
+    fetch("/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+    });
+}
+</script>
+
+</body>
+</html>
